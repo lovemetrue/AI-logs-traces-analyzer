@@ -1,0 +1,201 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otelier
+  namespace: elma365
+  uid: dff9eb07-0882-4d1f-908e-4c101edc838d
+  resourceVersion: '18299316'
+  generation: 2
+  creationTimestamp: '2025-09-24T09:00:42Z'
+  labels:
+    app: otelier
+    app.kubernetes.io/instance: elma365-2025.7.8
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: otelier
+    app.kubernetes.io/version: 1.0.0
+    helm.sh/chart: otelier-0.1.0
+    tier: elma365
+  annotations:
+    argocd.argoproj.io/tracking-id: elma365-2025.7.8:apps/Deployment:elma365/otelier
+    ci.elma365.com/checksum: 2613107c
+    ci.elma365.com/commit: a93562fb
+    ci.elma365.com/job_id: '3466959'
+    ci.elma365.com/pipeline_id: '606887'
+    ci.elma365.com/timestamp: '2025-07-15T17:46:41+04:00'
+    deployment.kubernetes.io/revision: '2'
+    depot.elma365.com/path: production
+  selfLink: /apis/apps/v1/namespaces/elma365/deployments/otelier
+status:
+  observedGeneration: 2
+  replicas: 1
+  updatedReplicas: 1
+  readyReplicas: 1
+  availableReplicas: 1
+  conditions:
+    - type: Available
+      status: 'True'
+      lastUpdateTime: '2025-09-24T09:01:30Z'
+      lastTransitionTime: '2025-09-24T09:01:30Z'
+      reason: MinimumReplicasAvailable
+      message: Deployment has minimum availability.
+    - type: Progressing
+      status: 'True'
+      lastUpdateTime: '2025-10-05T04:05:12Z'
+      lastTransitionTime: '2025-09-24T09:00:51Z'
+      reason: NewReplicaSetAvailable
+      message: ReplicaSet "otelier-65d8496784" has successfully progressed.
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otelier
+      app.kubernetes.io/instance: elma365-2025.7.8
+      app.kubernetes.io/name: otelier
+      tier: elma365
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: otelier
+        app.kubernetes.io/instance: elma365-2025.7.8
+        app.kubernetes.io/name: otelier
+        tier: elma365
+      annotations:
+        config.linkerd.io/proxy-cpu-limit: '0.5'
+        config.linkerd.io/proxy-cpu-request: '0.1'
+        config.linkerd.io/proxy-memory-limit: 128Mi
+        config.linkerd.io/proxy-memory-request: 64Mi
+        config.linkerd.io/skip-outbound-ports: 5432,6432,27017,27018,6379,26379,5672,15672,5000,5001,9000
+        grafana_alloy_logs: 'true'
+        profiles.grafana.com/cpu.port_name: http
+        profiles.grafana.com/cpu.scrape: 'true'
+        profiles.grafana.com/goroutine.port_name: http
+        profiles.grafana.com/goroutine.scrape: 'true'
+        profiles.grafana.com/memory.port_name: http
+        profiles.grafana.com/memory.scrape: 'true'
+        prometheus.io/path: /metrics
+        prometheus.io/port: '8080'
+        prometheus.io/scrape: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6432,27017,27018,6379,26379,5672,15672,5000,5001,9000
+    spec:
+      containers:
+        - name: otelier
+          image: hub.elma365.tech/elma365/otelier/service:ci-2613107c
+          ports:
+            - name: grpc
+              containerPort: 5000
+              protocol: TCP
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: http-otlp
+              containerPort: 3001
+              protocol: TCP
+            - name: otlp-prom
+              containerPort: 3300
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: elma365-env-config
+                optional: true
+            - secretRef:
+                name: elma365-db-connections
+                optional: true
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            - name: NAMESPACE
+              value: elma365
+            - name: ELMA365_GRPC_PORT
+              value: '5000'
+            - name: ELMA365_HTTP_OTLP_PORT
+              value: '3001'
+            - name: ELMA365_HTTP_OTLP_PUBLIC_PORT
+              value: '3002'
+            - name: ELMA365_OTELIER_PROMETHEUS_EXPORTER_ENABLED
+              value: 'false'
+            - name: ELMA365_OTELIER_PROMETHEUS_EXPORTER_PORT
+              value: '3300'
+            - name: GOMEMLIMIT
+              value: '966367642'
+            - name: GOMAXPROCS
+              value: '2'
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 150m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 2
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 1
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        node-role.kubernetes.io/worker: ''
+      securityContext:
+        runAsUser: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+        - name: yandexsecret
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - otelier
+                    - key: release
+                      operator: In
+                      values:
+                        - elma365-2025.7.8
+                topologyKey: kubernetes.io/hostname
+      schedulerName: default-scheduler
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: elma365
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

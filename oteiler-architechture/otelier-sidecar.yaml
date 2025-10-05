@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otelier-with-ai-sidecar
+  # ... остальные метаданные ...
+spec:
+  template:
+    spec:
+      containers:
+        # Основной контейнер otelier (без изменений)
+        - name: otelier
+          image: "elma365/otelier/service:{{ .Values.images.service }}"
+          # ... существующая конфигурация ...
+        
+        # Sidecar контейнер для перенаправления в AI сервис
+        - name: otel-ai-bridge
+          image: otel/opentelemetry-collector-contrib:0.85.0
+          volumeMounts:
+            - name: otel-ai-bridge-config
+              mountPath: /etc/otel
+          env:
+            - name: OTEL_CONFIG
+              value: /etc/otel/config.yaml
+          ports:
+            - name: otlp-bridge
+              containerPort: 4317
+
+      volumes:
+        - name: otel-ai-bridge-config
+          configMap:
+            name: otel-ai-bridge-config
