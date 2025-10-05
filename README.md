@@ -4,6 +4,7 @@
 
 ### Структура проекта
 
+```
 ai-observer/
 ├── app/                          # Основной код Python
 │   ├── __init__.py
@@ -39,3 +40,4 @@ ai-observer/
 ├── pyproject.toml               # Конфигурация проекта
 ├── .env.example                 # Пример переменных окружения
 └── README.md
+```
