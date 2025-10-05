@@ -7,13 +7,20 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/lovemetrue/ai-logs-metrics-observer/internal/server"
 )
 
 func main() {
 	// Запускаем два сервера:
 	// - 8080 для OTLP данных из кластера
 	// - 8081 для UI/API запросов
+
+	app := server.NewApp()
+	
+	if err := app.Run(); err != nil {
+		log.Printf("Error starting server: %v", err)
+		os.Exit(1)
+	}
 	
 	go startOTLPServer()  // порт 8080
 	startAPIServer()      // порт 8081
