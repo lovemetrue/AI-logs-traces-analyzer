@@ -1,17 +1,43 @@
+[project]
+name = "go-ai-observability"
+version = "0.1.0"
+description = "AI Observability with Ollama for microservices monitoring"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+dependencies = [
+    "fastapi==0.118.0",
+    "uvicorn==0.37.0",
+    "pydantic==2.9.2",
+    "opentelemetry-api==1.24.0",
+    "opentelemetry-sdk==1.24.0",
+    "chromadb==1.1.1",
+    "sentence-transformers==5.1.1",
+    "langchain==1.0.0a10",
+    "ollama==0.6.0",
+    "python-dotenv==1.0.1",
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "loguru==0.7.2"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.0",
+    "pytest-asyncio==0.21.0",
+    "black==23.0.0",
+    "isort==5.12.0",
+    "mypy==1.8.0",
+]
+
 [build-system]
-requires = ["setuptools>=68.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[project]
-name = "observability-llm"
-version = "0.1.0"
-description = "LLM-powered observability analyzer"
-dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "chromadb",
-    "langchain",
-    "ollama",
-    "python-dotenv"
-]
+[tool.black]
+line-length = 100
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3

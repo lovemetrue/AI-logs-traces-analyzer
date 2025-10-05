@@ -1,12 +1,53 @@
 version: '3.8'
 
 services:
-  observability-llm:
+  ai-observability:
     build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - CHROMA_HOST=http://chromadb:8000
+      - OTEL_ENDPOINT=http://otelier:4318
+      - LOG_LEVEL=INFO
+    volumes:
+      - ollama_models:/root/.ollama
+      - ./storage:/app/storage
+      - ./data:/app/data
+    depends_on:
+      - ollama
+      - chromadb
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '6.0'
+    restart: unless-stopped
+
+  chromadb:
+    image: chromadb/chroma:latest
     ports:
       - "8000:8000"
     environment:
-      - CHROMA_PATH=/app/storage/chroma
+      - IS_PERSISTENT=TRUE
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_DB_PATH=/chroma/chroma
     volumes:
-      - ./storage:/app/storage
+      - chroma_data:/chroma/chroma
     restart: unless-stopped
+
+volumes:
+  ollama_models:
+    external: true
+    name: ollama_models
+  chroma_data:
