@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -45,11 +45,11 @@ class APIConfig:
 
 @dataclass
 class Config:
-    ollama: OllamaConfig = OllamaConfig()
-    chroma: ChromaConfig = ChromaConfig()
-    otel: OTelConfig = OTelConfig()
-    training: TrainingConfig = TrainingConfig()
-    api: APIConfig = APIConfig()
+    ollama: OllamaConfig = field(default_factory=OllamaConfig)
+    chroma: ChromaConfig = field(default_factory=ChromaConfig)
+    otel: OTelConfig = field(default_factory=OTelConfig)
+    training: TrainingConfig = field(default_factory=TrainingConfig)
+    api: APIConfig = field(default_factory=APIConfig)
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
     environment: str = os.getenv("ENVIRONMENT", "production")
 
