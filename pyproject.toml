@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "observability-llm"
+version = "0.1.0"
+description = "LLM-powered observability analyzer"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "chromadb",
+    "langchain",
+    "ollama",
+    "python-dotenv"
+]

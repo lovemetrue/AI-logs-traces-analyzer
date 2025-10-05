@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  observability-llm:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_PATH=/app/storage/chroma
+    volumes:
+      - ./storage:/app/storage
+    restart: unless-stopped
